@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "server\server.csproj", "{2CDED02E-25A6-4E1B-A192-E69EC1D2652C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "temperature_Server", "temperature_Server\temperature_Server.csproj", "{589CCF80-EC6B-4C06-92A2-3153EF0D6D74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2CDED02E-25A6-4E1B-A192-E69EC1D2652C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2CDED02E-25A6-4E1B-A192-E69EC1D2652C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2CDED02E-25A6-4E1B-A192-E69EC1D2652C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2CDED02E-25A6-4E1B-A192-E69EC1D2652C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{589CCF80-EC6B-4C06-92A2-3153EF0D6D74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{589CCF80-EC6B-4C06-92A2-3153EF0D6D74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{589CCF80-EC6B-4C06-92A2-3153EF0D6D74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{589CCF80-EC6B-4C06-92A2-3153EF0D6D74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
