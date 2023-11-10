@@ -1,8 +1,7 @@
 ﻿namespace temperature_Server.Data
 {
-    public class DeviceTimeLog
+    public class DeviceTimeLog : BaseEntity<int>
     {
-        public int Id { get; set; }
 
         public Guid DeviceId { get; set; }
 
