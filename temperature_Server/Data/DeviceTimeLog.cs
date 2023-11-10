@@ -4,10 +4,12 @@
     {
         public int Id { get; set; }
 
-        public Guid DeviceGuid { get; set; }
+        public Guid DeviceId { get; set; }
 
-        public DateTime TimeStart { get; set; } 
+        public DateTime TimeStarted { get; set; } 
 
-        public DateTime TimeStopped { get; set; }
+        public DateTime? TimeStopped { get; set; }
+
+        public TemperatureReaderDevice Device { get; set; }
     }
 }
