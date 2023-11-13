@@ -15,16 +15,24 @@ namespace temperature_Server.Data.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Account>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
+                entity.Property(e => e.UserId).HasMaxLength(36).IsRequired();
+                entity.HasIndex(e => e.UserId).IsUnique();
+            });
             modelBuilder.Entity<TemperatureReaderDevice>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
                 entity.Property(e => e.PlacementWeight).IsRequired();
                 entity.Property(e => e.DisplayName).HasMaxLength(48).IsRequired();
-                entity.HasIndex(e => e.DisplayName);
+                entity.HasIndex(e => e.DisplayName).IsUnique();
 
-                entity.HasMany(e=>e.ReadingLogs).WithOne(e=>e.Device).HasForeignKey(e=>e.DeviceId);
-                entity.HasMany(e=>e.TimeLogs).WithOne(e=>e.Device).HasForeignKey(e=>e.DeviceId);
+                entity.HasOne(e => e.Account).WithMany(e => e.Devices).HasForeignKey(e => e.AccountId);
+                entity.HasMany(e => e.ReadingLogs).WithOne(e => e.Device).HasForeignKey(e => e.DeviceId);
+                entity.HasMany(e => e.TimeLogs).WithOne(e => e.Device).HasForeignKey(e => e.DeviceId);
             });
             modelBuilder.Entity<TemperatureReading>(entity =>
             {
