@@ -1,5 +1,6 @@
-﻿
+﻿@page "/d"
 @using System.Security.Claims;
+@using ApexCharts
 @using Microsoft.AspNetCore.DataProtection;
 @using temperature_Server.Data;
 @using temperature_Server.Services;
@@ -12,11 +13,9 @@
     <h1>
         Failed to load device
     </h1>
-
 }
 else
 {
-
     @*<div class="px-4" style="display:block; background-color:grey; width:60vw">
 
             <h1>@Chat!.Id</h1>
@@ -37,17 +36,73 @@ else
             <button type="submit">Send</button>
         </EditForm>
         </div>*@
-    
+
+    <!-- Control panel -->
+    <div>
+        <div class="flex" style="background-color: darkred; float: left; width: auto; height:1000px;
+    padding: 20px;">
+            <input id="deviceName" type="text" value="@Device.DisplayName" />
+            <h3>Interval</h3>
+            <p>@interval minutter</p><!-- input field or displaying interval time -->
+            <button @onclick="IntervalAdd">+</button>
+            <button @onclick="IntervalRem">-</button>
+            <br />
+
+
+            <br />
+            <div style="float: left; width: 50%;">
+                <label>Start Time</label>
+                <input id="startTime" type="time" title="Start Time" />
+                <br />
+                <label>Start Date</label>
+                <input id="startDate" type="date" title="Start Date" />
+                <br />
+            </div>
+            <div style="float: left; width: 50%;">
+                <label>End Time</label>
+                <input id="endTime" type="time" title="End Time" />
+                <br />
+                <label>End Date</label>
+                <input id="endDate" type="date" title="End Date" />
+                <br />
+            </div>
+            <div style="float: left;">
+                <button @onclick="ResetDeviceData">Reset Data</button>
+            </div>
+        </div>
+        <!-- Displayed Data -->
+        <div class="flex" style="background-color: darkgreen; float: left; width: auto ; height:1000px;
+    padding: 20px;">
+            <br />
+            <div style="margin:0 25px">
+                <h5 style="float: left;"> Average Temperature: x</h5>
+                <h5 style="float: left; margin:0 100px"> Lowest Temperature: -y</h5>
+                <h5 style="float: left;"> Highest Temperature: z</h5>
+            </div>
+            <ApexChart TItem="TemperatureReading">
+
+                <ApexPointSeries TItem="TemperatureReading"
+                             Items="Device.ReadingLogs"
+                             Name="Temperature"
+                             SeriesType="SeriesType.Line"
+                             XValue="@(e => e.TimeStamp.ToString("dd/MM/yy HH:mm:ss")+" GMT")"
+                             YValue="@(e => Convert.ToDecimal(e.Temperature))"
+                             OrderBy="e=>e.X"
+                                              ShowDataLabels />
+            </ApexChart>
+            @*<div style="margin:0 25px">
+                <h5 style="float: left;"> From: 7:00 32/13/1949</h5>
+                <h5 style="float: right;"> To: 7:00 24/12/2024</h5>
+            </div>*@
+            <br />
+        </div>
+    </div>
 }
-
-
 @code {
-
-
     [Parameter]
-    public Guid DeviceId { get; set; }
-
-    public TemperatureReaderDevice? Device { get; set; }
+    public Guid DeviceId { get; set; } = new Guid();
+    public int interval { get; set; } = 0;
+    public TemperatureReaderDevice? Device { get; set; } = null;
 
     //public class TypeToChatForm
     //{
@@ -73,6 +128,7 @@ else
     //}
     //protected override void OnInitialized() => Model ??= new();
 
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -93,10 +149,77 @@ else
             }
         }
 
-        // slet efter \\
-        Device = new();
-        Device.DisplayName = "stue";
+        Device = new TemperatureReaderDevice
+        {
+            Id = Guid.NewGuid(),
+            DisplayName = "stue 1"
+        };
 
+        Device.TimeLogs = new List<DeviceTimeLog>()
+        {
+            new DeviceTimeLog(){
+                DeviceId = Device.Id,
+
+                TimeStarted = DateTime.Now.AddDays(-3),
+
+                TimeStopped = DateTime.Now.AddDays(-2)
+            },
+            new DeviceTimeLog(){
+                DeviceId = Device.Id,
+
+                TimeStarted = DateTime.Now.AddDays(-1),
+
+                TimeStopped = DateTime.Now
+            }
+        };
+
+        Device.ReadingLogs = new List<TemperatureReading>()
+        {
+            new TemperatureReading()
+            {
+                DeviceId = Device.Id,
+                Temperature = 21.5F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-3)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = Device.Id,
+                Temperature = 19.8F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-2)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = Device.Id,
+                Temperature = 15.2F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-1)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = Device.Id,
+                Temperature = -5.2F,
+                TimeStamp = DateTime.Now.AddDays(-1)
+            },
+        };
+    }
+
+    public void RenameDevice()
+    {
+        //api call to rename device
+    }
+    public void ResetDeviceData()
+    {
+        //api call to reset device's data
+    }
+
+
+    public void IntervalAdd()
+    {
+        interval++;
+    }
+
+    public void IntervalRem()
+    {
+        interval--;
     }
 }
 
