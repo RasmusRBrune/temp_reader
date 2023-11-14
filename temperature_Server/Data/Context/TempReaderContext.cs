@@ -30,9 +30,18 @@ namespace temperature_Server.Data.Context
                 entity.Property(e => e.DisplayName).HasMaxLength(48).IsRequired();
                 entity.HasIndex(e => e.DisplayName).IsUnique();
 
-                entity.HasOne(e => e.Account).WithMany(e => e.Devices).HasForeignKey(e => e.AccountId);
-                entity.HasMany(e => e.ReadingLogs).WithOne(e => e.Device).HasForeignKey(e => e.DeviceId);
-                entity.HasMany(e => e.TimeLogs).WithOne(e => e.Device).HasForeignKey(e => e.DeviceId);
+                entity.HasOne(e => e.Account).WithMany(e => e.Devices).HasForeignKey(e => e.AccountId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(e => e.ReadingLogs).WithOne(e => e.Device).HasForeignKey(e => e.DeviceId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(e => e.TimeLogs).WithOne(e => e.Device).HasForeignKey(e => e.DeviceId).OnDelete(DeleteBehavior.Cascade);
+            });
+            modelBuilder.Entity<TemperatureReaderDeviceKey>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
+                entity.Property(e => e.DeviceId).IsRequired();
+                entity.HasIndex(e => e.DeviceId).IsUnique();
+
+                entity.HasOne(e => e.Device).WithOne().HasForeignKey<TemperatureReaderDeviceKey>(e => e.DeviceId).OnDelete(DeleteBehavior.Cascade);
             });
             modelBuilder.Entity<TemperatureReading>(entity =>
             {
