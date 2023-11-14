@@ -10,10 +10,10 @@
 @inject AuthenticationStateProvider authStateProvider;
 
 ﻿<CascadingValue Value="this">
-	<div style="display:flex; height: max-content;overflow-y: hidden;overflow-x: hidden;">
+	<div style="display:flex; height: 360px;overflow-y: hidden;overflow-x: hidden;">
 		<div style="display:flex;width:160px;">
 
-			<div style="display:block;height:90vh;overflow-x:hidden" class="btn-group" role="group">
+			<div style="display:block;height:90vh;overflow-x:hidden; background-color: aqua; " class="btn-group" role="group">
 				@if (Devices == null)
 				{
 
@@ -27,7 +27,7 @@
 						<button style="width:160px" type="button"
 								class="btn @GetButtonClass(device)"
 						@onclick=@( () => ActivateDevice(device) )>
-							@device.Id.ToString()
+							@device.DisplayName
 						</button>
 					}
 				}
@@ -40,16 +40,18 @@
 		}
 		@*@ChildContent*@
 	</div>
+
+	<AddDeviceOverlay></AddDeviceOverlay>
+
+	<RemoveDeviceOverlay></RemoveDeviceOverlay>
 </CascadingValue>
 
-<AddDeviceOverlay></AddDeviceOverlay>
 
-<RemoveDeviceOverlay></RemoveDeviceOverlay>
 @code {
 	public TemperatureReaderDevice? ActiveDevice { get; set; }
 	[Parameter]
 	public string? DeviceId { get; set; }
-	public List<TemperatureReaderDevice>? Devices { get; set; }
+	public List<TemperatureReaderDevice>? Devices { get; set;} 
 	string GetButtonClass(TemperatureReaderDevice device)
 	{
 		return device == ActiveDevice ? "btn-primary" : "btn-secondary";
@@ -57,18 +59,18 @@
 
 	List<DeviceComponent>? DeviceComponents { get; set; } = new();
 
-	internal void AddPage(TemperatureReaderDevice device)
-	{
-		Devices.Add(device);
-		if (Devices.Count == 1)
-			ActiveDevice = device;
-		StateHasChanged();
-	}
+	// internal void AddPage(TemperatureReaderDevice device)
+	// {
+	// 	Devices.Add(device);
+	// 	if (Devices.Count == 1)
+	// 		ActiveDevice = device;
+	// 	StateHasChanged();
+	// }
 
 	void ActivateDevice(TemperatureReaderDevice device)
 	{
 		ActiveDevice = device;
-		//NavManager.NavigateTo($"/{device.Id.ToString()}");
+		NavManager.NavigateTo($"/{device.Id.ToString()}");
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -89,7 +91,25 @@
 		}
 		if (DeviceId != null && DeviceId != "")
 		{
-			ActiveDevice = Devices?.FirstOrDefault(e => e.Id.ToString() == DeviceId);
+			ActiveDevice = Devices?.FirstOrDefault(e => e.Id.ToString() == DeviceId); 
 		}
+
+		// slet efter \\
+		Devices = new();
+		Devices.Add(new TemperatureReaderDevice
+			{
+				Id = Guid.NewGuid(),
+				DisplayName = "stue 1"
+			});
+		Devices.Add(new TemperatureReaderDevice
+			{
+				Id = Guid.NewGuid(),
+				DisplayName = "stue 2"
+			});
+		Devices.Add(new TemperatureReaderDevice
+			{
+				Id = Guid.NewGuid(),
+				DisplayName = "køkken"
+			});
 	}
 }

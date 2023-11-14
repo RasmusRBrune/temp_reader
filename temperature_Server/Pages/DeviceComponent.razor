@@ -76,7 +76,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        
+
         var authState = await authStateProvider
                         .GetAuthenticationStateAsync();
         var user = authState.User;
@@ -93,6 +93,9 @@ else
             }
         }
 
+        // slet efter \\
+        Device = new();
+        Device.DisplayName = "stue";
 
     }
 }
