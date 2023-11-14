@@ -1,0 +1,99 @@
+﻿
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.DataProtection;
+@using temperature_Server.Data;
+@using temperature_Server.Services;
+@inject AuthenticationStateProvider authStateProvider;
+@inject IAccountService AccService;
+@inject ITemperatureReaderDeviceService deviceService;
+@inject IDataProtectionProvider provider;
+@if (Device == null)
+{
+    <h1>
+        Failed to load device
+    </h1>
+
+}
+else
+{
+
+    @*<div class="px-4" style="display:block; background-color:grey; width:60vw">
+
+            <h1>@Chat!.Id</h1>
+            ﻿
+    <div style="display:flex; max-height:70vh; height: max-content;overflow-y: scroll;overflow-x: hidden;">
+
+            <div style="display:block;height:90vh;width:60vw;overflow-x:hidden; background-color:red" class="btn-group" role="group">
+            @foreach (var msg in Chat!.Messages.OrderBy(e=>e.TimeSent))
+            {
+                    <MessageComponent Message="@msg" IsOwnMessage="msg.SenderId==Account.Id" />
+            }
+
+            </div>
+        </div>
+
+        <EditForm Model="@Model" OnSubmit="@Submit">
+            <InputText @bind-Value="Model!.TextInput" />
+            <button type="submit">Send</button>
+        </EditForm>
+        </div>*@
+    
+}
+
+
+@code {
+
+
+    [Parameter]
+    public Guid DeviceId { get; set; }
+
+    public TemperatureReaderDevice? Device { get; set; }
+
+    //public class TypeToChatForm
+    //{
+    //    public string? TextInput { get; set; }
+
+    //}
+    //public TypeToChatForm? Model { get; set; }
+    public IDataProtector? dataProtector { get; set; }
+
+    public Account Account { get; set; }
+
+    //private async void Submit()
+    //{
+    //    var res = await msgService.AddAsync(new()
+    //        {
+    //            SenderId = Account.Id,
+    //            ChatId = Chat.Id,
+    //            Content = dataProtector.Protect(Model.TextInput)
+    //        });
+    //    Model.TextInput = "";
+    //    StateHasChanged();
+    //    //Chat.Messages.Add(res);
+    //}
+    //protected override void OnInitialized() => Model ??= new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        var authState = await authStateProvider
+                        .GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var userid = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (userid != null)
+            {
+                var accid = (await AccService.FindByUserId(userid)).Id;
+                Account = await AccService.GetSingleWithIncludeAsync(accid);
+                Device = await deviceService.GetSingleWithIncludeAsync(DeviceId);
+                DeviceId = Device.Id;
+                dataProtector ??= provider.CreateProtector(Device.Id.ToString());
+            }
+        }
+
+
+    }
+}
+
