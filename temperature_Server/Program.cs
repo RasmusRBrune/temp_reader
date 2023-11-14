@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using temperature_Server.Services;
 using temperature_Server.Repositories;
+using temperature_Server.Data.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +19,13 @@ builder.Services.AddTransient(typeof(ITemperatureReaderDeviceService), typeof(Te
 builder.Services.AddTransient(typeof(IDeviceTimeLogService), typeof(DeviceTimeLogService));
 builder.Services.AddTransient(typeof(ITemperatureReadingService), typeof(TemperatureReadingService));
 
-var connectionString = builder.Configuration.GetConnectionString("temperature_ServerContextConnection") ?? throw new InvalidOperationException("Connection string 'temperature_ServerContextConnection' not found.");
+var IdentityConnection = builder.Configuration.GetConnectionString("IdentityConnection") ?? throw new InvalidOperationException("Connection string 'temperature_ServerContextConnection' not found.");
 
-builder.Services.AddDbContext<temperature_ServerContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<temperature_ServerContext>(options => options.UseSqlServer(IdentityConnection));
+
+var connectionString = builder.Configuration.GetConnectionString("TempConnection") ?? throw new InvalidOperationException("Connection string 'temperature_ServerContextConnection' not found.");
+
+builder.Services.AddDbContext<TempReaderContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<temperature_ServerContext>();
 

@@ -1,5 +1,4 @@
-﻿@page "/"
-@page "/{DeviceId}"
+﻿
 <PageTitle>Index</PageTitle>
 
 @using System.Security.Claims;
@@ -8,6 +7,7 @@
 @inject IAccountService AccService;
 @inject NavigationManager NavManager;
 @inject AuthenticationStateProvider authStateProvider;
+
 ﻿<CascadingValue Value="this">
 	<div style="display:flex; height: max-content;overflow-y: hidden;overflow-x: hidden;">
 		<div style="display:flex;width:160px;">
@@ -40,6 +40,10 @@
 		@*@ChildContent*@
 	</div>
 </CascadingValue>
+
+<AddDeviceOverlay></AddDeviceOverlay>
+
+<RemoveDeviceOverlay></RemoveDeviceOverlay>
 @code{
 	public TemperatureReaderDevice? ActiveDevice { get; set; }
 	[Parameter]
@@ -63,7 +67,7 @@
 	void ActivateDevice(TemperatureReaderDevice device)
 	{
 		ActiveDevice = device;
-		NavManager.NavigateTo($"/{device.Id.ToString()}");
+		//NavManager.NavigateTo($"/{device.Id.ToString()}");
 	}
 
 	protected override async Task OnInitializedAsync()
