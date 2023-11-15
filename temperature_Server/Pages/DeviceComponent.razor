@@ -16,13 +16,13 @@
 }
 else
 {
-    <html style="background-color: #2b2d31;">
+    <div style="background-color: #2b2d31;">
 
     <!-- Control panel -->
     <div>
         <div class="flex" style="background-color: #2b2d31; color: white; float: left; width: auto; padding: 25px;">
             <div>
-                <input style="display: block; margin: 15px auto; width: 80%" id="deviceName" type="text" value="@Device.DisplayName" />
+                    <InputText style="display: block; margin: 15px auto; width: 80%" id="deviceName" Value="@Device.DisplayName" ValueChanged="RenameDevice" ValueExpression="() => Device.DisplayName"></InputText>
                 <h3 style="text-align: center">Interval</h3>
                 <p style="text-align: center">@interval minutter</p><!-- input field or displaying interval time -->
                 <div style="width: 60px; margin: auto;">
@@ -100,7 +100,7 @@ else
             <br />
         </div>
     </div>
-    </html>
+    </div>
 }
 @code {
     [Parameter]
@@ -149,12 +149,7 @@ else
                 }
             };
 
-        Device = new TemperatureReaderDevice
-            {
-                Id = Guid.NewGuid(),
-                DisplayName = "stue 1",
-                IntervalInMinutes = 10
-            };
+       
 
         interval = Device.IntervalInMinutes;
 
@@ -180,47 +175,55 @@ else
             {
                 new TemperatureReading()
                 {
+                    Id=38,
                     DeviceId = Device.Id,
                     Temperature = 21.5F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-8)
                 },
                 new TemperatureReading()
                 {
+                    Id=39,
                     DeviceId = Device.Id,
                     Temperature = 20.5F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-7)
                 },
                 new TemperatureReading()
                 {
+                    Id=40,
                     DeviceId = Device.Id,
                     Temperature = 19.2F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-6)
                 },
                 new TemperatureReading()
                 {
+                    Id=41,
                     DeviceId = Device.Id,
                     Temperature = 15.2F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-5)
                 },            new TemperatureReading()
                 {
+                    Id=42,
                     DeviceId = Device.Id,
                     Temperature = 14.5F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-4)
                 },
                 new TemperatureReading()
                 {
+                    Id=43,
                     DeviceId = Device.Id,
                     Temperature = 11.4F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-3)
                 },
                 new TemperatureReading()
                 {
+                    Id=44,
                     DeviceId = Device.Id,
                     Temperature = 2.2F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-2)
                 },
                 new TemperatureReading()
                 {
+                    Id=45,
                     DeviceId = Device.Id,
                     Temperature = -1.3F,
                     TimeStamp = DateTime.Now.AddDays(-1).AddHours(-1)
@@ -240,13 +243,18 @@ else
         StateHasChanged();
     }
 
-    public void RenameDevice()
+    public async void RenameDevice(string name)
     {
         //api call to rename device
+        Device.DisplayName = name;
+        var res = await deviceService.UpdateAsync(Device);
     }
-    public void ResetDeviceData()
+   
+    public async void ResetDeviceData()
     {
         //api call to reset device's data
+        Device = await deviceService.WipeDataAsync(Device.Id);
+        Filter();
     }
 
     public async void IntervalAdd()

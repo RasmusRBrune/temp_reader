@@ -11,5 +11,6 @@ namespace temperature_Server.Services
     public interface ITemperatureReaderDeviceService : IService<TemperatureReaderDevice, Guid>
     {
         public Task<TemperatureReaderDevice> PairWithAccount(string deviceKey, Guid accountId);
+        public Task<TemperatureReaderDevice> WipeDataAsync(Guid deviceId);
     }
 }

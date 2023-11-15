@@ -8,9 +8,11 @@ namespace temperature_Server.Data.Context
         {
         }
 
+        public virtual DbSet<TemperatureReaderDeviceKey> Keys { get; set; }
         public virtual DbSet<TemperatureReaderDevice> Devices { get; set; }
-        public virtual DbSet<TemperatureReading> TempsReading { get; set; }
-        public virtual DbSet<DeviceTimeLog> DeviceTimeLog { get; set; }
+        public virtual DbSet<TemperatureReading> Readings { get; set; }
+        public virtual DbSet<DeviceTimeLog> TimeLog { get; set; }
+        public virtual DbSet<Account> Accounts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
