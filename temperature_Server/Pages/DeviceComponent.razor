@@ -16,26 +16,6 @@
 }
 else
 {
-    @*<div class="px-4" style="display:block; background-color:grey; width:60vw">
-
-            <h1>@Chat!.Id</h1>
-            ﻿
-    <div style="display:flex; max-height:70vh; height: max-content;overflow-y: scroll;overflow-x: hidden;">
-
-            <div style="display:block;height:90vh;width:60vw;overflow-x:hidden; background-color:red" class="btn-group" role="group">
-            @foreach (var msg in Chat!.Messages.OrderBy(e=>e.TimeSent))
-            {
-                    <MessageComponent Message="@msg" IsOwnMessage="msg.SenderId==Account.Id" />
-            }
-
-            </div>
-        </div>
-
-        <EditForm Model="@Model" OnSubmit="@Submit">
-            <InputText @bind-Value="Model!.TextInput" />
-            <button type="submit">Send</button>
-        </EditForm>
-        </div>*@
     <html style="background-color: #2b2d31;">
 
     <!-- Control panel -->
@@ -125,7 +105,7 @@ else
 @code {
     [Parameter]
     public Guid DeviceId { get; set; } = new Guid();
-    public int interval { get; set; } = 10;
+    public int interval { get; set; }
     public DateTime? startDate { get; set; }
     public DateTime? endDate { get; set; }
     public DateTime? startTime { get; set; }
@@ -172,8 +152,11 @@ else
         Device = new TemperatureReaderDevice
             {
                 Id = Guid.NewGuid(),
-                DisplayName = "stue 1"
+                DisplayName = "stue 1",
+                IntervalInMinutes = 10
             };
+
+        interval = Device.IntervalInMinutes;
 
         Device.TimeLogs = new List<DeviceTimeLog>()
             {
@@ -266,14 +249,17 @@ else
         //api call to reset device's data
     }
 
-
-    public void IntervalAdd()
+    public async void IntervalAdd()
     {
         interval++;
+        Device.IntervalInMinutes = interval;
+        await deviceService.UpdateAsync(Device);
     }
 
-    public void IntervalRem()
+    public async void IntervalRem()
     {
         interval--;
+        Device.IntervalInMinutes = interval;
+        await deviceService.UpdateAsync(Device);
     }
 }
