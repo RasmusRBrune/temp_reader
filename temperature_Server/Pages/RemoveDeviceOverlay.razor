@@ -5,7 +5,7 @@
 
 <p>To delete the device please type "I am sure!"</p>
 <input type="text" @bind:event="oninput" @bind="Text"/>
-<button class="btn btn-primary" disabled="@UserConsented" @onclick=@(()=>Parent.Delete(DeviceName))>Delete</button>
+<button class="btn btn-primary" disabled="@UserNotConsented" @onclick=@(()=>Parent.Delete(DeviceName))>Delete</button>
 
 @code {
     [CascadingParameter]
@@ -13,7 +13,7 @@
     [Parameter]
     public string? DeviceName{ get; set; }
     private string DeleteConfirmationRequiredText = "I am sure!";
-    private bool UserConsented { get => Text == DeleteConfirmationRequiredText; }
+    private bool UserNotConsented { get => Text != DeleteConfirmationRequiredText; }
     public string Text { get; set; } = "";
 
 

@@ -11,10 +11,10 @@
 @inject AuthenticationStateProvider authStateProvider;
 
 ﻿<CascadingValue Value="this">
-	<div style="display:flex; height: 360px;overflow-y: hidden;overflow-x: hidden;">
+	<div style="display:flex; height: max-content;overflow-y: hidden;overflow-x: hidden;">
 		<div style="display:flex;width:160px;">
 
-			<div style="display:block;height:90vh;overflow-x:hidden; background-color: aqua; " class="btn-group" role="group">
+			<div style="display:block;height:60vh;overflow-x:hidden; background-color: #313338; border: 5px solid black;" class="btn-group" role="group">
 				@if (Devices == null)
 				{
 
@@ -25,7 +25,7 @@
 				{
 					@foreach (TemperatureReaderDevice device in Devices)
 					{
-						<button style="width:160px" type="button"
+						<button style="width:160px;margin-bottom: 10px;" type="button"
 								class="btn @GetButtonClass(device)"
 						@onclick=@( () => ActivateDevice(device) )>
 							@device.DisplayName
@@ -46,7 +46,7 @@
 	<div>
 			@if(Popup == "Delete")
 			{
-				<RemoveDeviceOverlay DeviceName="ActiveDevice.DisplayName"></RemoveDeviceOverlay>
+				<RemoveDeviceOverlay DeviceName="@ActiveDevice.DisplayName"></RemoveDeviceOverlay>
 			}
 			else
 			{
@@ -85,10 +85,13 @@
 
 	internal async void Delete(string deviceName)
 	{
-		var deviceId = Devices.FirstOrDefault(e => e.DisplayName == deviceName)?.Id;
-		if(deviceId != null)
+		var device = Devices.FirstOrDefault(e => e.DisplayName == deviceName);
+		if(device != null)
 		{
-			await deviceService.DeleteAsync(deviceId.GetValueOrDefault());
+			await deviceService.DeleteAsync(device.Id);
+			Devices.Remove(device);
+			Popup = null;
+			StateHasChanged();
 		}
 	}
 
@@ -103,9 +106,12 @@
 			if (userid != null)
 			{
 				var accid = (await AccService.FindByUserId(userid)).Id;
-				var currentUser = await AccService.GetSingleWithIncludeAsync(accid);
-				Devices = currentUser.Devices.ToList();
-				await deviceService.PairWithAccount(deviceKey, accid);
+				// var currentUser = await AccService.GetSingleWithIncludeAsync(accid);
+				// Devices = currentUser.Devices.ToList();
+				var da = await deviceService.PairWithAccount(deviceKey, accid);
+				Devices.Add(da);
+				Popup = null;
+				StateHasChanged();
 			}
 		}
 	}
