@@ -10,6 +10,6 @@ namespace temperature_Server.Services
 {
     public interface ITemperatureReaderDeviceService : IService<TemperatureReaderDevice, Guid>
     {
-        //public Task<TemperatureReaderDevice> FindByUserId(string UserId);
+        public Task<TemperatureReaderDevice> PairWithAccount(string deviceKey, Guid accountId);
     }
 }
