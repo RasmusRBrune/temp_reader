@@ -15,21 +15,29 @@
 		<div style="display:flex;width:160px;">
 
 			<div style="display:block;height:60vh;overflow-x:hidden; background-color: #313338; border: 5px solid black;" class="btn-group" role="group">
-				@if (Devices == null)
+				@if (LoadingPage)
 				{
-
-					<p><em>Loading...</em></p>
-
+					<p style="color:red"><em>Loading...</em></p>
 				}
 				else
 				{
-					@foreach (TemperatureReaderDevice device in Devices)
+					
+					@if (Devices == null)
 					{
-						<button style="width:160px;margin-bottom: 10px;" type="button"
-								class="btn @GetButtonClass(device)"
-						@onclick=@( () => ActivateDevice(device) )>
-							@device.DisplayName
-						</button>
+
+						<p style="color:red"><em>No devices are found.</em></p>
+
+					}
+					else
+					{
+						@foreach (TemperatureReaderDevice device in Devices)
+						{
+							<button style="width:160px;margin-bottom: 10px;" type="button"
+									class="btn @GetButtonClass(device)"
+							@onclick=@( () => ActivateDevice(device) )>
+								@device.DisplayName
+							</button>
+						}
 					}
 				}
 			</div>
@@ -64,6 +72,7 @@
 	[Parameter]
 	public string? DeviceId { get; set; }
 	public bool DeviceIsNotSelected { get => ActiveDevice == null; }
+	public bool LoadingPage { get; set; }
 	public List<TemperatureReaderDevice>? Devices { get; set; }
 	string GetButtonClass(TemperatureReaderDevice device)
 	{
@@ -90,6 +99,7 @@
 		{
 			await deviceService.DeleteAsync(device.Id);
 			Devices.Remove(device);
+			ActiveDevice = null;
 			Popup = null;
 			StateHasChanged();
 		}

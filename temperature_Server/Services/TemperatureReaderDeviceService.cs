@@ -16,13 +16,16 @@ namespace temperature_Server.Services
 
         public override async Task<TemperatureReaderDevice> AddAsync(TemperatureReaderDevice entity)
         {
-            var device = await base.AddAsync(entity);
+            var device = await _TemperatureReaderDeviceRepository.AddAsync(entity);
 			var key = await _keyRepository.AddAsync(new()
 			{
 				DeviceId = device.Id,
 				Key = DateTime.Now.ToString()
 			});
-			return device;
+			
+			return await _TemperatureReaderDeviceRepository.GetSingleAsync(e=>e.Id==key.DeviceId);
+
+			
         }
 
         public async Task<TemperatureReaderDevice> PairWithAccount(string deviceKey, Guid accountId)
