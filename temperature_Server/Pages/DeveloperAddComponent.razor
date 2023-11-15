@@ -1,0 +1,13 @@
+﻿@page "/DeveloperAddDevice"
+@using temperature_Server.Data;
+@using temperature_Server.Services;
+@inject ITemperatureReaderDeviceService deviceService;
+<h3>Developer Add Component</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var device = await deviceService.AddAsync(new(){ DisplayName = DateTime.Now.ToString() });
+    }
+}

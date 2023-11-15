@@ -1,17 +1,24 @@
 ﻿
-<PageTitle>Counter</PageTitle>
+<PageTitle>Delete @DeviceName</PageTitle>
 
-<h1>Counter</h1>
+<h1>Delete @DeviceName?</h1>
 
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<p>To delete the device please type "I am sure!"</p>
+<input type="text" @bind:event="oninput" @bind="Text"/>
+<button class="btn btn-primary" disabled="@UserConsented" @onclick=@(()=>Parent.Delete(DeviceName))>Delete</button>
 
 @code {
-    private int currentCount = 0;
+    [CascadingParameter]
+    public DeviceList Parent { get; set; }
+    [Parameter]
+    public string? DeviceName{ get; set; }
+    private string DeleteConfirmationRequiredText = "I am sure!";
+    private bool UserConsented { get => Text == DeleteConfirmationRequiredText; }
+    public string Text { get; set; } = "";
 
-    private void IncrementCount()
+
+    public void Cancel()
     {
-        currentCount++;
+        Parent.CancelPopup();
     }
 }

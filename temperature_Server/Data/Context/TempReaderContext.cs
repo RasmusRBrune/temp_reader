@@ -40,6 +40,8 @@ namespace temperature_Server.Data.Context
                 entity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
                 entity.Property(e => e.DeviceId).IsRequired();
                 entity.HasIndex(e => e.DeviceId).IsUnique();
+                entity.Property(e => e.Key).IsRequired();
+                entity.HasIndex(e => e.Key).IsUnique();
 
                 entity.HasOne(e => e.Device).WithOne().HasForeignKey<TemperatureReaderDeviceKey>(e => e.DeviceId).OnDelete(DeleteBehavior.Cascade);
             });

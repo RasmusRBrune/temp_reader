@@ -6,11 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using temperature_Server.Services;
 using temperature_Server.Repositories;
 using temperature_Server.Data.Context;
+using Microsoft.AspNetCore.Components.Authorization;
+using temperature_Server.Areas.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient(typeof(IAccountRepository), typeof(AccountRepository));
 builder.Services.AddTransient(typeof(ITemperatureReaderDeviceRepository), typeof(TemperatureReaderDeviceRepository));
+builder.Services.AddTransient(typeof(ITemperatureReaderDeviceKeyRepository), typeof(TemperatureReaderDeviceKeyRepository));
 builder.Services.AddTransient(typeof(IDeviceTimeLogRepository), typeof(DeviceTimeLogRepository));
 builder.Services.AddTransient(typeof(ITemperatureReadingRepository), typeof(TemperatureReadingRepository));
 
@@ -32,6 +35,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 var app = builder.Build();

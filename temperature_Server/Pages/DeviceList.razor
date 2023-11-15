@@ -6,6 +6,7 @@
 @using temperature_Server.Data;
 @using temperature_Server.Services;
 @inject IAccountService AccService;
+@inject ITemperatureReaderDeviceService deviceService;
 @inject NavigationManager NavManager;
 @inject AuthenticationStateProvider authStateProvider;
 
@@ -40,15 +41,29 @@
 		}
 		@*@ChildContent*@
 	</div>
+	@if(Popup != null)
+	{
+	<div>
+			@if(Popup == "Delete")
+			{
+				<RemoveDeviceOverlay DeviceName="ActiveDevice.DisplayName"></RemoveDeviceOverlay>
+			}
+			else
+			{
+				<AddDeviceOverlay></AddDeviceOverlay>
+			}
+		</div>
+	}
 </CascadingValue>
 
-<AddDeviceOverlay></AddDeviceOverlay>
+<button @onclick=@(()=>Popup="Delete") disabled=@DeviceIsNotSelected>Delete</button>
+<button @onclick=@(()=>Popup="Add")>Add Device</button>
 
-<RemoveDeviceOverlay></RemoveDeviceOverlay>
 @code {
 	public TemperatureReaderDevice? ActiveDevice { get; set; }
 	[Parameter]
 	public string? DeviceId { get; set; }
+	public bool DeviceIsNotSelected { get => ActiveDevice == null; }
 	public List<TemperatureReaderDevice>? Devices { get; set; }
 	string GetButtonClass(TemperatureReaderDevice device)
 	{
@@ -56,6 +71,9 @@
 	}
 
 	List<DeviceComponent>? DeviceComponents { get; set; } = new();
+
+	public object? Popup { get; set; }
+	private Guid AccountId { get; set; }
 
 	internal void AddPage(TemperatureReaderDevice device)
 	{
@@ -65,10 +83,42 @@
 		StateHasChanged();
 	}
 
+	internal async void Delete(string deviceName)
+	{
+		var deviceId = Devices.FirstOrDefault(e => e.DisplayName == deviceName)?.Id;
+		if(deviceId != null)
+		{
+			await deviceService.DeleteAsync(deviceId.GetValueOrDefault());
+		}
+	}
+
+	internal async void AddDevice(string deviceKey)
+	{
+		var authState = await authStateProvider
+						.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (user.Identity is not null && user.Identity.IsAuthenticated)
+		{
+			var userid = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+			if (userid != null)
+			{
+				var accid = (await AccService.FindByUserId(userid)).Id;
+				var currentUser = await AccService.GetSingleWithIncludeAsync(accid);
+				Devices = currentUser.Devices.ToList();
+				await deviceService.PairWithAccount(deviceKey, accid);
+			}
+		}
+	}
+
+	internal void CancelPopup()
+	{
+		Popup = null;
+	}
+
 	void ActivateDevice(TemperatureReaderDevice device)
 	{
 		ActiveDevice = device;
-		//NavManager.NavigateTo($"/{device.Id.ToString()}");
+		NavManager.NavigateTo($"/{device.Id.ToString()}");
 	}
 
 	protected override async Task OnInitializedAsync()
