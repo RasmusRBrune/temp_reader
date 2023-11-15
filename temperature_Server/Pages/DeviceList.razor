@@ -6,14 +6,15 @@
 @using temperature_Server.Data;
 @using temperature_Server.Services;
 @inject IAccountService AccService;
+@inject ITemperatureReaderDeviceService deviceService;
 @inject NavigationManager NavManager;
 @inject AuthenticationStateProvider authStateProvider;
 
 ﻿<CascadingValue Value="this">
-	<div style="display:flex; height: 360px;overflow-y: hidden;overflow-x: hidden;">
+	<div style="display:flex; height: max-content;overflow-y: hidden;overflow-x: hidden;">
 		<div style="display:flex;width:160px;">
 
-			<div style="display:block;height:90vh;overflow-x:hidden; background-color: aqua; " class="btn-group" role="group">
+			<div style="display:block;height:60vh;overflow-x:hidden; background-color: #313338; border: 5px solid black;" class="btn-group" role="group">
 				@if (Devices == null)
 				{
 
@@ -24,7 +25,7 @@
 				{
 					@foreach (TemperatureReaderDevice device in Devices)
 					{
-						<button style="width:160px" type="button"
+						<button style="width:160px;margin-bottom: 10px;" type="button"
 								class="btn @GetButtonClass(device)"
 						@onclick=@( () => ActivateDevice(device) )>
 							@device.DisplayName
@@ -40,18 +41,30 @@
 		}
 		@*@ChildContent*@
 	</div>
-
-	<AddDeviceOverlay></AddDeviceOverlay>
-
-	<RemoveDeviceOverlay></RemoveDeviceOverlay>
+	@if(Popup != null)
+	{
+	<div>
+			@if(Popup == "Delete")
+			{
+				<RemoveDeviceOverlay DeviceName="@ActiveDevice.DisplayName"></RemoveDeviceOverlay>
+			}
+			else
+			{
+				<AddDeviceOverlay></AddDeviceOverlay>
+			}
+		</div>
+	}
 </CascadingValue>
 
+<button @onclick=@(()=>Popup="Delete") disabled=@DeviceIsNotSelected>Delete</button>
+<button @onclick=@(()=>Popup="Add")>Add Device</button>
 
 @code {
 	public TemperatureReaderDevice? ActiveDevice { get; set; }
 	[Parameter]
 	public string? DeviceId { get; set; }
-	public List<TemperatureReaderDevice>? Devices { get; set;} 
+	public bool DeviceIsNotSelected { get => ActiveDevice == null; }
+	public List<TemperatureReaderDevice>? Devices { get; set; }
 	string GetButtonClass(TemperatureReaderDevice device)
 	{
 		return device == ActiveDevice ? "btn-primary" : "btn-secondary";
@@ -59,13 +72,54 @@
 
 	List<DeviceComponent>? DeviceComponents { get; set; } = new();
 
-	// internal void AddPage(TemperatureReaderDevice device)
-	// {
-	// 	Devices.Add(device);
-	// 	if (Devices.Count == 1)
-	// 		ActiveDevice = device;
-	// 	StateHasChanged();
-	// }
+	public object? Popup { get; set; }
+	private Guid AccountId { get; set; }
+
+	internal void AddPage(TemperatureReaderDevice device)
+	{
+		Devices.Add(device);
+		if (Devices.Count == 1)
+			ActiveDevice = device;
+		StateHasChanged();
+	}
+
+	internal async void Delete(string deviceName)
+	{
+		var device = Devices.FirstOrDefault(e => e.DisplayName == deviceName);
+		if(device != null)
+		{
+			await deviceService.DeleteAsync(device.Id);
+			Devices.Remove(device);
+			Popup = null;
+			StateHasChanged();
+		}
+	}
+
+	internal async void AddDevice(string deviceKey)
+	{
+		var authState = await authStateProvider
+						.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (user.Identity is not null && user.Identity.IsAuthenticated)
+		{
+			var userid = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+			if (userid != null)
+			{
+				var accid = (await AccService.FindByUserId(userid)).Id;
+				// var currentUser = await AccService.GetSingleWithIncludeAsync(accid);
+				// Devices = currentUser.Devices.ToList();
+				var da = await deviceService.PairWithAccount(deviceKey, accid);
+				Devices.Add(da);
+				Popup = null;
+				StateHasChanged();
+			}
+		}
+	}
+
+	internal void CancelPopup()
+	{
+		Popup = null;
+	}
 
 	void ActivateDevice(TemperatureReaderDevice device)
 	{
@@ -91,25 +145,7 @@
 		}
 		if (DeviceId != null && DeviceId != "")
 		{
-			ActiveDevice = Devices?.FirstOrDefault(e => e.Id.ToString() == DeviceId); 
+			ActiveDevice = Devices?.FirstOrDefault(e => e.Id.ToString() == DeviceId);
 		}
-
-		// slet efter \\
-		Devices = new();
-		Devices.Add(new TemperatureReaderDevice
-			{
-				Id = Guid.NewGuid(),
-				DisplayName = "stue 1"
-			});
-		Devices.Add(new TemperatureReaderDevice
-			{
-				Id = Guid.NewGuid(),
-				DisplayName = "stue 2"
-			});
-		Devices.Add(new TemperatureReaderDevice
-			{
-				Id = Guid.NewGuid(),
-				DisplayName = "køkken"
-			});
 	}
 }
