@@ -36,11 +36,11 @@ else
             <button type="submit">Send</button>
         </EditForm>
         </div>*@
+    <html style="background-color: #2b2d31;">
 
     <!-- Control panel -->
     <div>
-        <div class="flex" style="background-color: #2b2d31; color: white; float: left; width: auto; height:1000px;
-    padding: 20px;">
+        <div class="flex" style="background-color: #2b2d31; color: white; float: left; width: auto; padding: 25px;">
             <div>
                 <input style="display: block; margin: 15px auto; width: 80%" id="deviceName" type="text" value="@Device.DisplayName" />
                 <h3 style="text-align: center">Interval</h3>
@@ -48,53 +48,63 @@ else
                 <div style="width: 60px; margin: auto;">
                     <button @onclick="IntervalAdd">+</button>
                     <button @onclick="IntervalRem">-</button>
+                    <br />
                 </div>
-                <br />
-            </div>
 
-            <br />
-            <div style="float: left; width: 50%; margin: 50px 0">
-                <div>
-                    <label>Start Time</label>
-                    <input id="startTime" type="time" title="Start Time" />
-                </div>
                 <br />
-                <div>
-                    <label>Start Date</label>
-                    <input id="startDate" type="date" title="Start Date" />
+                <div style="float: left; width: 50%; margin-top: 50px">
+                    <div>
+                        <label>Fra</label>
+                        <input id="startTime" type="time" title="Fra" @bind="startTime" />
+                    </div>
+                    <br />
+                    <div>
+                        <label>Fra</label>
+                        <input id="startDate" type="date" title="Fra" @bind="startDate" />
+                    </div>
+                    <br />
                 </div>
-                <br />
-            </div>
-            <div style="float: left; width: 50%; margin: 50px 0">
-                <div>
-                    <label>End Time</label>
-                    <input id="endTime" type="time" title="End Time" />
+                <div style="float: right; width: 50%; margin-top: 50px">
+                    <div>
+                        <label>Til</label>
+                        <input id="endTime" type="time" title="Til" @bind="endTime" />
+                    </div>
+                    <br />
+                    <div>
+                        <label>Til</label>
+                        <input id="endDate" type="date" title="Til" @bind="endDate" />
+                    </div>
+                    <br />
                 </div>
-                <br />
-                <div>
-                    <label>End Date</label>
-                    <input id="endDate" type="date" title="End Date" />
+                <div style="width: 50px; margin: auto;">
+                    <button @onclick="Filter">Filter</button>
                 </div>
-                <br />
             </div>
             <div style="float: left">
                 <button @onclick="ResetDeviceData">Reset Data</button>
             </div>
         </div>
         <!-- Displayed Data -->
-        <div class="flex" style="background-color: #313338;color: white; float: left; width: auto ; height:1000px;
-    padding: 20px;">
+        <div class="flex" style="background-color: #313338; border: solid 2px #1e1f22; color: white; float: left; width: auto; padding: 20px; margin: 50px 50px 50px 25px">
             <br />
             <div style="margin:0 25px 35px 25px">
-                <h5 style="float: left;"> Average Temperature: x</h5>
-                <h5 style="float: left; margin:0 100px"> Lowest Temperature: -y</h5>
-                <h5 style="float: left;"> Highest Temperature: z</h5>
+                <h5 style="float: left;"> Average Temperature: @(Device.ReadingLogs.Sum(e => e.Temperature) / Device.ReadingLogs.Count)</h5>
+                <h5 style="float: left; margin:0 100px"> Lowest Temperature: @(Device.ReadingLogs.OrderBy(e => e.Temperature).First().Temperature)</h5>
+                <h5 style="float: left;"> Highest Temperature: @(Device.ReadingLogs.OrderBy(e => e.Temperature).Last().Temperature)</h5>
             </div>
             <div style="margin: 25px">
-                <ApexChart TItem="TemperatureReading" Options=options>
+                <ApexChart TItem="TemperatureReading" Options=options @ref="chart">
 
+                    @*                    <ApexPointSeries TItem="DeviceTimeLog"
+                Items="Device.TimeLogs"
+                SeriesType="@SeriesType.Area"
+                Name="Gross Value"
+                XValue="@(e => e.TimeStarted)"
+                YValue="@(e => Convert.ToDecimal(100.0F))"
+                OrderBy="e=>e.X" />
+                *@
                     <ApexPointSeries TItem="TemperatureReading"
-                                 Items="Device.ReadingLogs"
+                                 Items="filter"
                                  Name="Temperature"
                                  SeriesType="SeriesType.Line"
                                  XValue="@(e => e.TimeStamp.ToString("dd/MM/yy HH:mm:ss")+" GMT")"
@@ -103,52 +113,39 @@ else
                                                       ShowDataLabels />
                 </ApexChart>
             </div>
-            @*<div style="margin:0 25px">
-        <h5 style="float: left;"> From: 7:00 32/13/1949</h5>
-        <h5 style="float: right;"> To: 7:00 24/12/2024</h5>
-        </div>*@
+            <div style="margin:0 25px 35px 25px">
+                <h5 style="float: left;"> Starts dato: @(Device.ReadingLogs.OrderBy(e => e.TimeStamp).First().TimeStamp)</h5>
+                <h5 style="float: right;"> Slut dato: @(Device.ReadingLogs.OrderBy(e => e.TimeStamp).Last().TimeStamp)</h5>
+            </div>
             <br />
         </div>
     </div>
+    </html>
 }
 @code {
     [Parameter]
     public Guid DeviceId { get; set; } = new Guid();
     public int interval { get; set; } = 10;
+    public DateTime? startDate { get; set; }
+    public DateTime? endDate { get; set; }
+    public DateTime? startTime { get; set; }
+    public DateTime? endTime { get; set; }
     public TemperatureReaderDevice? Device { get; set; } = null;
 
-    //public class TypeToChatForm
-    //{
-    //    public string? TextInput { get; set; }
-
-    //}
-    //public TypeToChatForm? Model { get; set; }
     public IDataProtector? dataProtector { get; set; }
 
     public Account Account { get; set; }
 
-    //private async void Submit()
-    //{
-    //    var res = await msgService.AddAsync(new()
-    //        {
-    //            SenderId = Account.Id,
-    //            ChatId = Chat.Id,
-    //            Content = dataProtector.Protect(Model.TextInput)
-    //        });
-    //    Model.TextInput = "";
-    //    StateHasChanged();
-    //    //Chat.Messages.Add(res);
-    //}
-    //protected override void OnInitialized() => Model ??= new();
-
-
+    public List<TemperatureReading> filter { get; set; }
     private ApexChartOptions<TemperatureReading> options;
+    private ApexChart<TemperatureReading> chart;
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
         var authState = await authStateProvider
-                        .GetAuthenticationStateAsync();
+                .GetAuthenticationStateAsync();
         var user = authState.User;
         if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
@@ -179,73 +176,85 @@ else
             };
 
         Device.TimeLogs = new List<DeviceTimeLog>()
-        {
-            new DeviceTimeLog(){
-                DeviceId = Device.Id,
+            {
+                new DeviceTimeLog(){
+                    DeviceId = Device.Id,
 
-                TimeStarted = DateTime.Now.AddDays(-3),
+                    TimeStarted = DateTime.Now.AddDays(-1).AddHours(-7),
 
-                TimeStopped = DateTime.Now.AddDays(-2)
-            },
-            new DeviceTimeLog(){
-                DeviceId = Device.Id,
+                    TimeStopped = DateTime.Now.AddDays(-1).AddHours(-5)
+                },
+                new DeviceTimeLog(){
+                    DeviceId = Device.Id,
 
-                TimeStarted = DateTime.Now.AddDays(-1),
+                    TimeStarted = DateTime.Now.AddDays(-1).AddHours(-3),
 
-                TimeStopped = DateTime.Now
-            }
-        };
+                    TimeStopped = DateTime.Now.AddDays(-1).AddHours(-1)
+                }
+            };
 
         Device.ReadingLogs = new List<TemperatureReading>()
-        {
-            new TemperatureReading()
             {
-                DeviceId = Device.Id,
-                Temperature = 21.5F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-8)
-            },
-            new TemperatureReading()
-            {
-                DeviceId = Device.Id,
-                Temperature = 20.5F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-7)
-            },
-            new TemperatureReading()
-            {
-                DeviceId = Device.Id,
-                Temperature = 19.2F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-6)
-            },
-            new TemperatureReading()
-            {
-                DeviceId = Device.Id,
-                Temperature = 15.2F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-5)
-            },            new TemperatureReading()
-            {
-                DeviceId = Device.Id,
-                Temperature = 14.5F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-4)
-            },
-            new TemperatureReading()
-            {
-                DeviceId = Device.Id,
-                Temperature = 11.4F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-3)
-            },
-            new TemperatureReading()
-            {
-                DeviceId = Device.Id,
-                Temperature = 2.2F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-2)
-            },
-            new TemperatureReading()
-            {
-                DeviceId = Device.Id,
-                Temperature = -1.3F,
-                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-1)
-            },
-        };
+                new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = 21.5F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-8)
+                },
+                new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = 20.5F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-7)
+                },
+                new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = 19.2F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-6)
+                },
+                new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = 15.2F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-5)
+                },            new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = 14.5F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-4)
+                },
+                new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = 11.4F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-3)
+                },
+                new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = 2.2F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-2)
+                },
+                new TemperatureReading()
+                {
+                    DeviceId = Device.Id,
+                    Temperature = -1.3F,
+                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-1)
+                },
+            };
+        filter = Device.ReadingLogs.ToList();
+    }
+    public async void Filter()
+    {
+        var temp = Device.ReadingLogs.AsEnumerable();
+        if (startTime != null) temp = temp.Where(e => e.TimeStamp.TimeOfDay > startTime?.TimeOfDay);
+        if (endTime != null) temp = temp.Where(e => e.TimeStamp.TimeOfDay < endTime?.TimeOfDay);
+        if (startDate != null) temp = temp.Where(e => e.TimeStamp.Date > startDate?.Date);
+        if (endDate != null) temp = temp.Where(e => e.TimeStamp.Date < endDate?.Date);
+        filter = temp.ToList();
+        await chart.UpdateSeriesAsync(true);
+        StateHasChanged();
     }
 
     public void RenameDevice()
@@ -268,4 +277,3 @@ else
         interval--;
     }
 }
-
