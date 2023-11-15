@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using temperature_Server.Data.Context;
 
@@ -11,9 +12,11 @@ using temperature_Server.Data.Context;
 namespace temperature_Server.Migrations.TempReader
 {
     [DbContext(typeof(TempReaderContext))]
-    partial class TempReaderContextModelSnapshot : ModelSnapshot
+    [Migration("20231115130055_addedinterval")]
+    partial class addedinterval
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

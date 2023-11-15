@@ -27,6 +27,7 @@ namespace temperature_Server.Data.Context
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
                 entity.Property(e => e.PlacementWeight).IsRequired();
+                entity.Property(e => e.IntervalInMinutes).HasDefaultValue(10).IsRequired();
                 entity.Property(e => e.DisplayName).HasMaxLength(48).IsRequired();
                 entity.HasIndex(e => e.DisplayName).IsUnique();
 

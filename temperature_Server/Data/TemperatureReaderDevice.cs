@@ -5,6 +5,7 @@
         public Guid? AccountId { get; set; }
         public string DisplayName { get; set; }
 
+        public int IntervalInMinutes { get; set; }
         public int PlacementWeight { get; set; }
         public Account? Account { get; set; }
 
