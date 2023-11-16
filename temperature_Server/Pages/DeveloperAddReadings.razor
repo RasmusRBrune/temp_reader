@@ -1,0 +1,74 @@
+﻿@page "/DeveloperAddReadings"
+@using temperature_Server.Data;
+@using temperature_Server.Services;
+@inject ITemperatureReaderDeviceService deviceService;
+<h3>Developer Add Component</h3>
+
+<label>Device Id</label>
+<input @bind="deviceId" />
+<button @onclick="Create">Create</button>
+@code {
+    public TemperatureReaderDevice device { get; set; }
+    public Guid deviceId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    public async void Create()
+    {
+
+        device = await deviceService.GetSingleWithIncludeAsync(deviceId);
+        device.ReadingLogs = new List<TemperatureReading>()
+        {
+            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = 21.5F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-8)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = 20.5F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-7)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = 19.2F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-6)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = 15.2F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-5)
+            },            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = 14.5F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-4)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = 11.4F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-3)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = 2.2F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-2)
+            },
+            new TemperatureReading()
+            {
+                DeviceId = deviceId,
+                Temperature = -1.3F,
+                TimeStamp = DateTime.Now.AddDays(-1).AddHours(-1)
+            }
+        };
+        var res = await deviceService.UpdateAsync(device);
+    }
+}
