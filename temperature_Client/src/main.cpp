@@ -213,7 +213,7 @@ void setup() {
     // Connect to Wi-Fi network with SSID and password
     Serial.println("Setting AP (Access Point)");
     // NULL sets an open Access Point
-    WiFi.softAP("ESP-DaJiaHao", NULL);
+    WiFi.softAP("TemperatureReader"/*+ctime(t)*/, NULL);
 
     IPAddress IP = WiFi.softAPIP();
     Serial.print("AP IP address: ");
