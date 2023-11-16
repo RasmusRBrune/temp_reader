@@ -8,6 +8,7 @@ using temperature_Server.Repositories;
 using temperature_Server.Data.Context;
 using Microsoft.AspNetCore.Components.Authorization;
 using temperature_Server.Areas.Identity;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,16 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+	options.ConfigureHttpsDefaults(options =>
+	{
+		// Grab the secret value from the secret store.
+		string? secretValue = builder.Configuration.GetValue<string>("KestrelCertificatePassword");
+		options.ServerCertificate = new X509Certificate2("ESP32TemperatureReader.pfx", secretValue);
+	});
+});
 
 var app = builder.Build();
 
