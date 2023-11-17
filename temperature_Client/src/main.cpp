@@ -17,6 +17,7 @@
   shall be included in all copies or substantial portions of the Software.
 *********/
 
+#pragma region include
 #include <Arduino.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
@@ -28,7 +29,9 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <chrono>
+#pragma endregion
 
+#pragma region variabler
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -92,6 +95,7 @@ String ledState;
 String GetInterval();
 
 unsigned long GettheInterval(String jsonString);
+#pragma endregion
 
 /**
  * @brief Initialize SPIFFS
@@ -209,6 +213,7 @@ String ReadInfoFile(fs::FS &fs)
   }
   return fileContent;
 }
+
 /**
  * @brief check if the it can run wifi
  * 
@@ -249,6 +254,7 @@ bool initWiFi()
   Serial.println(WiFi.localIP());
   return true;
 }
+
 /**
  * @brief Get the Temperatures from the DS18B20 temperature sensor in Celsius
  * 
@@ -308,7 +314,6 @@ String GetInterval()
     // file found at server
     if (httpCode == HTTP_CODE_OK)
     {
-      Serial.print(http.getString());
       return String(GettheInterval(http.getString()));
       
     }
@@ -351,12 +356,13 @@ unsigned long GettheInterval(String jsonString)
     Serial.println(error.c_str());
   }
 
+  // if intervalIn is null it will return the default value 60000 miliseconds meaning 1 minute
   if(doc["intervalInMinutes"] == "Null"){
     return 60000; 
   }
   // Extract the intervalInMinutes value
   int intervalInMinutes = doc["intervalInMinutes"];
-  // Now you can use the intervalInMinutes variable as needed
+  // return the value in miliseconds
   return intervalInMinutes * 60UL * 1000UL;
 }
 
