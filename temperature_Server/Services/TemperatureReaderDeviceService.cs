@@ -36,7 +36,7 @@ namespace temperature_Server.Services
         public async Task<TemperatureReaderDevice> PairWithAccount(string deviceKey, Guid accountId)
 		{
 
-			var deviceKeyEntity = await _keyRepository.GetSingleAsync(e => e.Key == deviceKey);
+			var deviceKeyEntity = await _keyRepository.GetSingleWithIncludeAsync(e => e.Key == deviceKey);
 			deviceKeyEntity.Device.AccountId = accountId;
 			await _TemperatureReaderDeviceRepository.UpdateAsync(deviceKeyEntity.Device);
 			return await _TemperatureReaderDeviceRepository.GetSingleAsync(e=>e.Id==deviceKeyEntity.Device.Id);

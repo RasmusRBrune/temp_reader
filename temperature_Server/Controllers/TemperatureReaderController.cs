@@ -43,11 +43,11 @@ namespace temperature_Server.Controllers
 		}
 
 		[HttpPost("UpLoadData")]
-		public async Task<IActionResult> UpLoadData(Guid id,DateTime timestamp,float temperature)
+		public async Task<IActionResult> UpLoadData([FromForm] Guid Id,[FromForm]float Temperature)
 		{
 			try
 			{
-				var data = await _readingService.AddAsync(new Data.TemperatureReading { DeviceId = id,TimeStamp=timestamp,Temperature= temperature });
+				var data = await _readingService.AddAsync(new Data.TemperatureReading { DeviceId = Id,TimeStamp=DateTime.Now,Temperature= Temperature });
 				if (data == null)
 				{
 					return BadRequest("Device could not be found");
@@ -63,5 +63,6 @@ namespace temperature_Server.Controllers
 				return Problem(e.Message);
 			}
 		}
+
 	}
 }
