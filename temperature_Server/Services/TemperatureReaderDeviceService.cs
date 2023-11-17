@@ -45,12 +45,6 @@ namespace temperature_Server.Services
         public async Task<TemperatureReaderDevice> WipeDataAsync(Guid deviceId)
         {
             var device = await GetSingleAsync(deviceId);
-            var test = device.Id;
-            var test1 = device.ReadingLogs.First().Id;
-            var test2 = device.ReadingLogs.Last().Id;
-            var test3 = device.TimeLogs.First().Id;
-            var test4 = device.TimeLogs.Last().Id;
-
             foreach (var item in device.ReadingLogs)
             {
                 await temperatureReadingRepository.DeleteAsync(e=>e.Id==item.Id);
