@@ -4,10 +4,12 @@
 @inject ITemperatureReaderDeviceService deviceService;
 <h3>Developer Add Component</h3>
 
+<h3>@device?.Id</h3>
 @code {
+    public TemperatureReaderDevice device { get; set; } 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        var device = await deviceService.AddAsync(new() { DisplayName = DateTime.Now.ToString(), /* AccountId = Guid.Parse("F972C752-7E3F-4A74-5AFD-08DBE5BF2872") */ });
+        device = await deviceService.AddAsync(new() { DisplayName = DateTime.Now.ToString(), /* AccountId = Guid.Parse("F972C752-7E3F-4A74-5AFD-08DBE5BF2872") */ });
     }
 }

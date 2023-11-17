@@ -1,5 +1,4 @@
-﻿@page "/d"
-@using System.Security.Claims;
+﻿@using System.Security.Claims;
 @using ApexCharts
 @using Microsoft.AspNetCore.DataProtection;
 @using temperature_Server.Data;
@@ -18,88 +17,94 @@ else
 {
     <div style="background-color: #2b2d31;">
 
-    <!-- Control panel -->
-    <div>
-        <div class="flex" style="background-color: #2b2d31; color: white; float: left; width: auto; padding: 25px;">
-            <div>
-                    <InputText style="display: block; margin: 15px auto; width: 80%" id="deviceName" Value="@Device.DisplayName" ValueChanged="RenameDevice" ValueExpression="() => Device.DisplayName"></InputText>
-                <h3 style="text-align: center">Interval</h3>
-                <p style="text-align: center">@interval minutter</p><!-- input field or displaying interval time -->
-                <div style="width: 60px; margin: auto;">
-                    <button @onclick="IntervalAdd">+</button>
-                    <button @onclick="IntervalRem">-</button>
+        <!-- Control panel -->
+        <div>
+            <div class="flex" style="background-color: #2b2d31; color: white; float: left; width: auto; padding: 25px;">
+                <div>
+                    <input style="display: block; margin: 15px auto; width: 80%" id="deviceName" @bind="displayName"/>
+                    <button @onclick="RenameDevice">Update Name</button>
+
+                    <h3 style="text-align: center">Interval</h3>
+                    <p style="text-align: center">@interval minutter</p><!-- input field or displaying interval time -->
+                    <div style="width: 60px; margin: auto;">
+                        <button @onclick="IntervalAdd">+</button>
+                        <button @onclick="IntervalRem">-</button>
+                        <br />
+                    </div>
+
+                    <br />
+                    <div style="float: left; width: 50%; margin-top: 50px">
+                        <div>
+                            <label>Fra</label>
+                            <input id="startTime" type="time" title="Fra" @bind="startTime" />
+                        </div>
+                        <br />
+                        <div>
+                            <label>Fra</label>
+                            <input id="startDate" type="date" title="Fra" @bind="startDate" />
+                        </div>
+                        <br />
+                    </div>
+                    <div style="float: right; width: 50%; margin-top: 50px">
+                        <div>
+                            <label>Til</label>
+                            <input id="endTime" type="time" title="Til" @bind="endTime" />
+                        </div>
+                        <br />
+                        <div>
+                            <label>Til</label>
+                            <input id="endDate" type="date" title="Til" @bind="endDate" />
+                        </div>
+                        <br />
+                    </div>
+                    <div style="width: 50px; margin: auto;">
+                        <button @onclick="Filter">Filter</button>
+                    </div>
+                </div>
+                <div style="float: left">
+                    <button @onclick="ResetDeviceData">Reset Data</button>
+                </div>
+            </div>
+            <!-- Displayed Data -->
+            @if (Device.ReadingLogs.Count > 0)
+            {
+                <div class="flex" style="background-color: #313338; border: solid 2px #1e1f22; color: white; float: left; width: auto; padding: 20px; margin: 50px 50px 50px 25px">
+                    <br />
+                    <div style="margin:0 25px 35px 25px">
+                        <h5 style="float: left;"> Average Temperature: @(Device.ReadingLogs.Sum(e => e.Temperature) / Device.ReadingLogs.Count)</h5>
+                        <h5 style="float: left; margin:0 100px"> Lowest Temperature: @(Device.ReadingLogs.OrderBy(e => e.Temperature).First().Temperature)</h5>
+                        <h5 style="float: left;"> Highest Temperature: @(Device.ReadingLogs.OrderBy(e => e.Temperature).Last().Temperature)</h5>
+                    </div>
+                    <div style="margin: 25px">
+                        <ApexChart TItem="TemperatureReading" Options=options @ref="chart">
+
+                            @*                    <ApexPointSeries TItem="DeviceTimeLog"
+                    Items="Device.TimeLogs"
+                    SeriesType="@SeriesType.Area"
+                    Name="Gross Value"
+                    XValue="@(e => e.TimeStarted)"
+                    YValue="@(e => Convert.ToDecimal(100.0F))"
+                    OrderBy="e=>e.X" />
+                    *@
+                            <ApexPointSeries TItem="TemperatureReading"
+                                     Items="filter"
+                                     Name="Temperature"
+                                     SeriesType="SeriesType.Line"
+                                     XValue="@(e => e.TimeStamp.ToString("dd/MM/yy HH:mm:ss")+" GMT")"
+                                     YValue="@(e => Convert.ToDecimal(e.Temperature))"
+                                     OrderBy="e=>e.X"
+                                     ShowDataLabels />
+                        </ApexChart>
+                    </div>
+                    <div style="margin:0 25px 35px 25px">
+                        <h5 style="float: left;"> Starts dato: @(Device.ReadingLogs.OrderBy(e => e.TimeStamp).First().TimeStamp)</h5>
+                        <h5 style="float: right;"> Slut dato: @(Device.ReadingLogs.OrderBy(e => e.TimeStamp).Last().TimeStamp)</h5>
+                    </div>
                     <br />
                 </div>
 
-                <br />
-                <div style="float: left; width: 50%; margin-top: 50px">
-                    <div>
-                        <label>Fra</label>
-                        <input id="startTime" type="time" title="Fra" @bind="startTime" />
-                    </div>
-                    <br />
-                    <div>
-                        <label>Fra</label>
-                        <input id="startDate" type="date" title="Fra" @bind="startDate" />
-                    </div>
-                    <br />
-                </div>
-                <div style="float: right; width: 50%; margin-top: 50px">
-                    <div>
-                        <label>Til</label>
-                        <input id="endTime" type="time" title="Til" @bind="endTime" />
-                    </div>
-                    <br />
-                    <div>
-                        <label>Til</label>
-                        <input id="endDate" type="date" title="Til" @bind="endDate" />
-                    </div>
-                    <br />
-                </div>
-                <div style="width: 50px; margin: auto;">
-                    <button @onclick="Filter">Filter</button>
-                </div>
-            </div>
-            <div style="float: left">
-                <button @onclick="ResetDeviceData">Reset Data</button>
-            </div>
+            }
         </div>
-        <!-- Displayed Data -->
-        <div class="flex" style="background-color: #313338; border: solid 2px #1e1f22; color: white; float: left; width: auto; padding: 20px; margin: 50px 50px 50px 25px">
-            <br />
-            <div style="margin:0 25px 35px 25px">
-                <h5 style="float: left;"> Average Temperature: @(Device.ReadingLogs.Sum(e => e.Temperature) / Device.ReadingLogs.Count)</h5>
-                <h5 style="float: left; margin:0 100px"> Lowest Temperature: @(Device.ReadingLogs.OrderBy(e => e.Temperature).First().Temperature)</h5>
-                <h5 style="float: left;"> Highest Temperature: @(Device.ReadingLogs.OrderBy(e => e.Temperature).Last().Temperature)</h5>
-            </div>
-            <div style="margin: 25px">
-                <ApexChart TItem="TemperatureReading" Options=options @ref="chart">
-
-                    @*                    <ApexPointSeries TItem="DeviceTimeLog"
-                Items="Device.TimeLogs"
-                SeriesType="@SeriesType.Area"
-                Name="Gross Value"
-                XValue="@(e => e.TimeStarted)"
-                YValue="@(e => Convert.ToDecimal(100.0F))"
-                OrderBy="e=>e.X" />
-                *@
-                    <ApexPointSeries TItem="TemperatureReading"
-                                 Items="filter"
-                                 Name="Temperature"
-                                 SeriesType="SeriesType.Line"
-                                 XValue="@(e => e.TimeStamp.ToString("dd/MM/yy HH:mm:ss")+" GMT")"
-                                 YValue="@(e => Convert.ToDecimal(e.Temperature))"
-                                 OrderBy="e=>e.X"
-                                                      ShowDataLabels />
-                </ApexChart>
-            </div>
-            <div style="margin:0 25px 35px 25px">
-                <h5 style="float: left;"> Starts dato: @(Device.ReadingLogs.OrderBy(e => e.TimeStamp).First().TimeStamp)</h5>
-                <h5 style="float: right;"> Slut dato: @(Device.ReadingLogs.OrderBy(e => e.TimeStamp).Last().TimeStamp)</h5>
-            </div>
-            <br />
-        </div>
-    </div>
     </div>
 }
 @code {
@@ -110,6 +115,7 @@ else
     public DateTime? endDate { get; set; }
     public DateTime? startTime { get; set; }
     public DateTime? endTime { get; set; }
+    public string displayName { get; set; }
     public TemperatureReaderDevice? Device { get; set; } = null;
 
     public IDataProtector? dataProtector { get; set; }
@@ -136,6 +142,7 @@ else
                 Account = await AccService.GetSingleWithIncludeAsync(accid);
                 Device = await deviceService.GetSingleWithIncludeAsync(DeviceId);
                 DeviceId = Device.Id;
+                displayName = Device.DisplayName;
                 dataProtector ??= provider.CreateProtector(Device.Id.ToString());
             }
         }
@@ -149,88 +156,11 @@ else
                 }
             };
 
-       
-
         interval = Device.IntervalInMinutes;
 
-        Device.TimeLogs = new List<DeviceTimeLog>()
-            {
-                new DeviceTimeLog(){
-                    DeviceId = Device.Id,
-
-                    TimeStarted = DateTime.Now.AddDays(-1).AddHours(-7),
-
-                    TimeStopped = DateTime.Now.AddDays(-1).AddHours(-5)
-                },
-                new DeviceTimeLog(){
-                    DeviceId = Device.Id,
-
-                    TimeStarted = DateTime.Now.AddDays(-1).AddHours(-3),
-
-                    TimeStopped = DateTime.Now.AddDays(-1).AddHours(-1)
-                }
-            };
-
-        Device.ReadingLogs = new List<TemperatureReading>()
-            {
-                new TemperatureReading()
-                {
-                    Id=38,
-                    DeviceId = Device.Id,
-                    Temperature = 21.5F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-8)
-                },
-                new TemperatureReading()
-                {
-                    Id=39,
-                    DeviceId = Device.Id,
-                    Temperature = 20.5F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-7)
-                },
-                new TemperatureReading()
-                {
-                    Id=40,
-                    DeviceId = Device.Id,
-                    Temperature = 19.2F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-6)
-                },
-                new TemperatureReading()
-                {
-                    Id=41,
-                    DeviceId = Device.Id,
-                    Temperature = 15.2F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-5)
-                },            new TemperatureReading()
-                {
-                    Id=42,
-                    DeviceId = Device.Id,
-                    Temperature = 14.5F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-4)
-                },
-                new TemperatureReading()
-                {
-                    Id=43,
-                    DeviceId = Device.Id,
-                    Temperature = 11.4F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-3)
-                },
-                new TemperatureReading()
-                {
-                    Id=44,
-                    DeviceId = Device.Id,
-                    Temperature = 2.2F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-2)
-                },
-                new TemperatureReading()
-                {
-                    Id=45,
-                    DeviceId = Device.Id,
-                    Temperature = -1.3F,
-                    TimeStamp = DateTime.Now.AddDays(-1).AddHours(-1)
-                },
-            };
         filter = Device.ReadingLogs.ToList();
     }
+
     public async void Filter()
     {
         var temp = Device.ReadingLogs.AsEnumerable();
@@ -243,13 +173,13 @@ else
         StateHasChanged();
     }
 
-    public async void RenameDevice(string name)
+    public async void RenameDevice()
     {
-        //api call to rename device
-        Device.DisplayName = name;
+        Device.DisplayName = displayName;
         var res = await deviceService.UpdateAsync(Device);
+        StateHasChanged();
     }
-   
+
     public async void ResetDeviceData()
     {
         //api call to reset device's data
